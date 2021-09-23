@@ -1,0 +1,117 @@
+Routes
+
+create/edit user => we do this by hand like cavemen
+
+GET /experiments => list of experiments for logged-in user
+response data:
+{
+	total: 42,
+	experiments: [
+		{ id: 'cafebabe', name: 'empty', variants: [] },
+		{
+			id: 'deadbeef'
+			name: 'Buy button',
+			variants: [
+				{
+					id: '1234',
+					name: 'red',
+					nbTrials: 1337,
+					nbSuccesses: 0,
+					nbFailures: 1337
+				},
+				{
+					id: 'abcde',
+					name: blue',
+					nbTrials: 420,
+					nbSuccesses: 69,
+					nbFailures: 351
+				}
+			]
+		}
+	]
+}
+
+POST /experiments => create new experiment
+post data:
+{
+	name: 'Buy button',
+	variants: ['red', 'blue']
+}
+response data:
+{
+	id: 'deadbeef'
+	name: 'Buy button',
+	variants: [
+		{
+			id: '1234',
+			name: 'red',
+			nbTrials: 0,
+			nbSuccesses: 0,
+			nbFailures: 0
+		},
+		{
+			id: 'abcde',
+			name: blue',
+			nbTrials: 0,
+			nbSuccesses: 0,
+			nbFailures: 0
+		}
+	]
+}
+
+GET /experiments/:id => see experiment
+response data: see above
+
+GET /experiments/:id/variants => see list of variants in experiment? redundant with GET /experiments/:id but it's restfuller
+response data:
+{
+	total: 2,
+	variants: [
+		{
+			id: '1234',
+			name: 'red',
+			nbTrials: 0,
+			nbSuccesses: 0,
+			nbFailures: 0
+		},
+		{
+			id: 'abcde',
+			name: 'blue',
+			nbTrials: 0,
+			nbSuccesses: 0,
+			nbFailures: 0
+		}
+	]
+}
+
+POST /experiments/:id/variants => add variant
+post data: { name: 'polka dots' }
+response data:
+{
+	id: 'c001d00d',
+	name: 'polka dots',
+	nbTrials: 0,
+	nbSuccesses: 0,
+	nbFailures: 0
+}
+
+GET /experiments/:id/suggest-variant => get variant to try for this experiment
+response data: { id: 'abcde', name: 'blue' }
+
+GET /variants/:id => see name, nb trials, nb successes, nb failures for this variant of this experiment
+response data:
+{
+	id: 'c001d00d',
+	name: 'polka dots',
+	nbTrials: 1000,
+	nbSuccesses: 100,
+	nbFailures: 900
+}
+
+POST /variants/:id/success => record success for this variant in the parent experiment
+post data: none
+response data: 201 empty
+
+POST /variants/:id/failure => ditto failure
+
+DELETE /variant/:id => delete variant
