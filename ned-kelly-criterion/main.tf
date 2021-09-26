@@ -11,9 +11,61 @@ provider "aws" {
   region = "eu-north-1"
 }
 
+# API
+
 resource "aws_api_gateway_rest_api" "api" {
   name = "ned-kelly-criterion"
 }
+
+resource "aws_api_gateway_deployment" "sandbox" {
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  triggers = {
+    redeployment = sha1(jsonencode(aws_api_gateway_rest_api.api.body))
+  }
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_api_gateway_stage" "sandbox" {
+  deployment_id = aws_api_gateway_deployment.sandbox.id
+  rest_api_id   = aws_api_gateway_rest_api.api.id
+  stage_name    = "sandbox"
+}
+
+# resource "aws_api_gateway_stage" "production" {
+
+# }
+
+resource "aws_api_gateway_usage_plan" "throttletron" {
+  # TODO: Make another usage plan for production.
+  name = "throttletron"
+  description  = "Sandbox Throttling"
+  api_stages {
+    api_id = aws_api_gateway_rest_api.api.id
+    stage  = aws_api_gateway_stage.sandbox.stage_name
+  }
+  quota_settings {
+    limit  = 1000
+    period = "DAY"
+  }
+  throttle_settings {
+    burst_limit = 10
+    rate_limit  = 10
+  }
+
+}
+
+resource "aws_api_gateway_api_key" "sandbox_key" {
+  name = "staging_key"
+}
+
+resource "aws_api_gateway_usage_plan_key" "sandbox_key" {
+  key_id        = aws_api_gateway_api_key.sandbox_key.id
+  key_type      = "API_KEY"
+  usage_plan_id = aws_api_gateway_usage_plan.throttletron.id
+}
+
 
 resource "aws_api_gateway_resource" "hello" {
   rest_api_id = aws_api_gateway_rest_api.api.id

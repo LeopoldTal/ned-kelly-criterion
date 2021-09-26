@@ -5,4 +5,4 @@ invoke: build
 	sam local invoke
 deploy: build
 	terraform init
-	sam deploy
+	terraform apply
