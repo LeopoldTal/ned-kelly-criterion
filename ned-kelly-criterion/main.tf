@@ -12,7 +12,7 @@ provider "aws" {
 }
 
 resource "aws_api_gateway_rest_api" "api" {
-    name =  "ned-kelly-criterion"
+  name = "ned-kelly-criterion"
 }
 
 resource "aws_api_gateway_resource" "hello" {
@@ -21,33 +21,51 @@ resource "aws_api_gateway_resource" "hello" {
   path_part   = "hello"
 }
 
-resource "aws_api_gateway_method" "hello_world" {
-    api_key_required = true
-    authorization = "NONE"
-    resource_id = aws_api_gateway_resource.hello.id
-    rest_api_id = aws_api_gateway_rest_api.api.id
-    http_method = "GET"
+resource "aws_api_gateway_method" "hello_get" {
+  api_key_required = true
+  authorization    = "NONE"
+  resource_id      = aws_api_gateway_resource.hello.id
+  rest_api_id      = aws_api_gateway_rest_api.api.id
+  http_method      = "GET"
 }
 
 resource "aws_api_gateway_integration" "lambda_integration" {
-    rest_api_id = aws_api_gateway_rest_api.api.id
-    resource_id = aws_api_gateway_resource.hello.id
-    http_method = aws_api_gateway_method.hello_world.http_method
-    integration_http_method = "POST"
-    type                    = "AWS_PROXY"
-    uri                     = aws_lambda_function.function.invoke_arn
+  rest_api_id             = aws_api_gateway_rest_api.api.id
+  resource_id             = aws_api_gateway_resource.hello.id
+  http_method             = aws_api_gateway_method.hello_get.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.hello_world_function.invoke_arn
 }
 
-resource "aws_lambda_function" "function" {
-    role = aws_iam_role.lambda_role.arn
-    function_name = "ned-kelly-criterion-HelloWorldFunction-iVTZjEZfroLa"
-    publish = true
-    handler = "app.lambda_handler"
-    runtime = "python3.9"
+
+# LAMBDA
+
+resource "aws_lambda_permission" "hello_world_invoke_permission" {
+  statement_id  = "AllowMyDemoAPIInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.hello_world_function.function_name
+  principal     = "apigateway.amazonaws.com"
+
+  # The /*/*/* part allows invocation from any stage, method and resource path
+  # within API Gateway REST API.
+  source_arn = "${aws_api_gateway_rest_api.api.execution_arn}/*/*/*"
 }
 
-resource "aws_iam_role" "lambda_role"{
-    assume_role_policy =  <<EOF
+
+resource "aws_lambda_function" "hello_world_function" {
+  role          = aws_iam_role.hello_world_lambda_role.arn
+  function_name = "ned-kelly-criterion-HelloWorldFunction-iVTZjEZfroLa"
+  publish       = true
+  handler       = "app.lambda_handler"
+  runtime       = "python3.9"
+  filename = data.archive_file.hello_world_source.output_path
+  source_code_hash = data.archive_file.hello_world_source.output_base64sha256
+
+}
+
+resource "aws_iam_role" "hello_world_lambda_role" {
+  assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -62,4 +80,11 @@ resource "aws_iam_role" "lambda_role"{
   ]
 }
 EOF
+}
+
+data "archive_file" "hello_world_source" {
+  type             = "zip"
+  source_dir       = "${path.module}/.aws-sam/build/HelloWorldFunction"
+  output_file_mode = "0666"
+  output_path      = "${path.module}/lambda.zip"
 }
