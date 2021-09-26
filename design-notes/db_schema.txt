@@ -1,0 +1,35 @@
+Tablez
+======
+
+users
+-----
+user_id	primary key, autoincrement
+email_address	varchar(320), nullable
+api_key_id	varchar(128), nullable, indexed
+creation_date	datetime, non-null
+update_date	datetime, non-null
+deletion_date	datetime, nullable
+
+
+experiments
+-----------
+experiment_id	primary key, autoincrement
+name	text (or varchar(something largeish)), non-null
+user_id	foreign key, non-null, indexed
+creation_date	datetime, non-null
+update_date	datetime, non-null
+deletion_date	datetime, nullable
+
+
+variants
+--------
+variant_id	primary key, autoincrement
+name	text (or varchar(something largeish)), non-null
+experiment_id	foreign key, non-null, indexed
+nb_successes	int, non-null
+nb_failures	int, non-null
+[nb_trials := nb_successes + nb_failures is derived; maybe have a view for it?]
+creation_date	datetime, non-null
+update_date	datetime, non-null
+deletion_date	datetime, nullable
+
