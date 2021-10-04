@@ -7,8 +7,8 @@ from .orm import *
 user = os.getenv('DB_USER', 'postgres')
 password = os.getenv('DB_PASSWORD', '')
 database_name = os.getenv('DB_NAME', 'postgres')
-database_url = os.getenv('DB_URL', 'localhost')
-engine = create_engine(f'postgresql://{user}@{database_url}:5432/{database_name}')
+database_host = os.getenv('DB_HOST', 'localhost')
+engine = create_engine(f'postgresql://{user}@{database_host}:5432/{database_name}')
 
 Base.metadata.create_all(engine)
 session = Session(engine)

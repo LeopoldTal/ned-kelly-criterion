@@ -380,7 +380,7 @@ dmypy.json
 
 # Build
 .aws-sam/
-
+lambda.zip
 
 # Terraform 
 
