@@ -5,6 +5,6 @@ invoke: build
 	sam local invoke
 deploy: build
 	terraform init
-	terraform apply
+	terraform apply -var-file=secrets.tfvars
 graph: main.tf
 	terraform graph | dot -Tsvg > graph.svg

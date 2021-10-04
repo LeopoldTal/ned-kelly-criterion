@@ -33,10 +33,6 @@ resource "aws_api_gateway_stage" "sandbox" {
   stage_name    = "sandbox"
 }
 
-# resource "aws_api_gateway_stage" "production" {
-
-# }
-
 resource "aws_api_gateway_usage_plan" "throttletron" {
   # TODO: Make another usage plan for production.
   name = "throttletron"
@@ -139,4 +135,21 @@ data "archive_file" "hello_world_source" {
   source_dir       = "${path.module}/.aws-sam/build/HelloWorldFunction"
   output_file_mode = "0666"
   output_path      = "${path.module}/lambda.zip"
+}
+
+
+variable "db_password" {
+  type    = string
+  default = ""
+}
+
+resource "aws_db_instance" "db" {
+  allocated_storage    = 10
+  engine               = "postgres"
+  instance_class       = "db.t3.micro"
+  name                 = "postgres"
+  username             = "nedkelly"
+  password             = var.db_password
+  multi_az             = false
+  skip_final_snapshot  = true
 }
