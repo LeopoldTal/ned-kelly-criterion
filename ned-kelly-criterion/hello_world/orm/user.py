@@ -6,8 +6,8 @@ class User(Base):
 	__tablename__ = 'users'
 	
 	user_id = Column(Integer, primary_key = True)
-	email_address = Column(String(320), nullable = True)
-	api_key_id = Column(String(128), nullable = True, index = True)
+	email_address = Column(String(320), nullable = True, unique = True)
+	api_key_id = Column(String(128), nullable = True, index = True, unique = True)
 	creation_date = Column(DateTime, nullable = False)
 	update_date = Column(DateTime, nullable = False)
 	deletion_date = Column(DateTime, nullable = True)
