@@ -379,7 +379,7 @@ dmypy.json
 .pyre/
 
 # Build
-ned-kelly-criterion/.aws-sam/
+.aws-sam/
 
 
 # Terraform 
