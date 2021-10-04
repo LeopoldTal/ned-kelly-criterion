@@ -6,3 +6,5 @@ invoke: build
 deploy: build
 	terraform init
 	terraform apply
+graph: main.tf
+	terraform graph | dot -Tsvg > graph.svg

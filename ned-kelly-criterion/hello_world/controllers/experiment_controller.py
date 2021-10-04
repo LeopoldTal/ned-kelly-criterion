@@ -30,6 +30,7 @@ def get_experiment_suggest_variant(event, context):
 	}
 
 def get_experiments(event, context):
+	# TODO: Plug this in to a route
 	user = get_current_user(event)
 	if user is None:
 		return { 'statusCode': 401 }
