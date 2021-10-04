@@ -205,6 +205,11 @@ resource "aws_iam_role" "hello_world_lambda_role" {
 EOF
 }
 
+resource "aws_iam_role_policy_attachment" "lambda_vpc_access" {
+    role       = aws_iam_role.hello_world_lambda_role.name
+    policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+}
+
 data "archive_file" "hello_world_source" {
   type             = "zip"
   source_dir       = "${path.module}/.aws-sam/build/HelloWorldFunction"
